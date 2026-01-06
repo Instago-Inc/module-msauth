@@ -1,0 +1,12 @@
+{
+  "name": "@instago/msauth",
+  "version": "1.0.2",
+  "description": "Microsoft OAuth helper with scope mapping",
+  "main": "index.js",
+  "keywords": [
+    "msauth",
+    "oauth",
+    "microsoft",
+    "graph"
+  ]
+}

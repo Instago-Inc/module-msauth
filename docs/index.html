@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>msauth Documentation</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 48px 24px;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+      }
+      .intro {
+        font-size: 16px;
+        color: #e2e8f0;
+      }
+      p {
+        margin: 0 0 16px;
+        color: #cbd5f5;
+      }
+      ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+      }
+      a {
+        color: #93c5fd;
+      }
+      .section {
+        margin-top: 28px;
+      }
+      .muted {
+        color: #94a3b8;
+        font-size: 14px;
+        margin: 6px 0 0;
+      }
+      .code {
+        background: #0b1220;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 16px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #e2e8f0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>module/msauth - V8 module</h1>
+      <p class="intro">msauth provides a simple way to handle Microsoft sign-in flows so workflows can access Microsoft services without wiring every OAuth step by hand. It keeps the experience friendly by guiding users through device code sign-in and reusing saved tokens when possible.</p>
+      <p class="muted">Learn more at <a href="https://instago.ai" target="_blank" rel="noopener">https://instago.ai</a>.</p>
+      <div class="section">
+        <h2>Technical reference</h2>
+        <h1>module/msauth - V8 module</h1>
+<p>msauth provides a simple way to handle Microsoft sign-in flows so workflows can access Microsoft services without wiring every OAuth step by hand. It keeps the experience friendly by guiding users through device code sign-in and reusing saved tokens when possible.</p>
+<p>Use it as the common entry point for Microsoft auth in this V8 environment. For more details about the platform, visit https://instago.ai.</p>
+<h2>Technical reference</h2>
+<h3>Exports</h3>
+<ul>
+<li><code>configure(opts)</code></li>
+<li><code>auth(opts)</code> -&gt; access token string or <code>&#x27;&#x27;</code></li>
+<li><code>getToken(opts)</code> -&gt; <code>{ status, tokens?, device?, error? }</code></li>
+<li><code>ensureAuthenticated(opts)</code> -&gt; same as <code>getToken</code></li>
+<li><code>ensureTokens(opts)</code> -&gt; alias for <code>ensureAuthenticated</code></li>
+<li><code>getAuthToken(opts)</code> -&gt; alias for <code>auth</code></li>
+<li><code>refresh(opts)</code> -&gt; token object</li>
+<li><code>clientCredentialsToken(opts)</code> -&gt; token object</li>
+<li><code>clear(opts)</code></li>
+<li><code>shouldNotifyMsAuth(opts)</code> -&gt; boolean</li>
+</ul>
+<h3>Usage</h3>
+<pre class="code"><code>
+const msauth = require(&#x27;msauth@latest&#x27;);
+
+msauth.configure({
+  tenant: &#x27;common&#x27;,
+  clientId: env.get(&#x27;msauth.clientId&#x27;),
+  scope: &#x27;mail,calendar&#x27;
+});
+
+const res = await msauth.getToken();
+if (res.status === &#x27;ok&#x27;) {
+  const accessToken = res.tokens.access_token;
+  // use accessToken in Graph calls
+} else if (res.status === &#x27;pending&#x27;) {
+  // show device instructions to the user
+  const device = res.device || {};
+  console.log(&#x27;Visit&#x27;, device.verification_uri, &#x27;and enter&#x27;, device.user_code);
+}
+</code></pre>
+<pre class="code"><code>
+const msauth = require(&#x27;msauth@latest&#x27;);
+
+const token = await msauth.auth({
+  scope: &#x27;https://graph.microsoft.com/.default&#x27;,
+  mode: &#x27;app&#x27;,
+  clientId: env.get(&#x27;msauth.clientId&#x27;),
+  clientSecret: env.get(&#x27;msauth.clientSecret&#x27;)
+});
+</code></pre>
+<h3>Configuration</h3>
+<p>Required env:</p>
+<ul>
+<li><code>msauth.tenant</code> - Azure AD tenant ID or <code>common</code>.</li>
+<li><code>msauth.clientId</code> - Azure AD application (client) ID.</li>
+</ul>
+<p>Optional env:</p>
+<ul>
+<li><code>msauth.clientSecret</code> - Client secret (needed for client credentials or refresh with secret).</li>
+<li><code>msauth.scope</code> - Space/comma separated scopes or scope aliases (e.g., <code>mail,todo</code>).</li>
+<li><code>msauth.mode</code> - Auth mode: <code>device</code> | <code>app</code> | <code>client</code>.</li>
+<li><code>msauth.debug</code> - Enable debug logging (<code>true</code>/<code>false</code>).</li>
+</ul>
+<p>Options (most functions accept these):</p>
+<ul>
+<li><code>tenant</code>, <code>clientId</code>, <code>clientSecret</code>, <code>scope</code></li>
+<li><code>scopes</code> or <code>services</code> as aliases for <code>scope</code></li>
+<li><code>mode</code> or <code>authMode</code></li>
+<li><code>useClientSecret</code> (boolean) to force secret in device/refresh</li>
+<li><code>maxPollAttempts</code> (number) for device polling</li>
+</ul>
+<p>Scope aliases:</p>
+<ul>
+<li><code>mail</code>, <code>mail.readonly</code></li>
+<li><code>calendar</code>, <code>calendar.readonly</code></li>
+<li><code>contacts</code>, <code>contacts.readonly</code></li>
+<li><code>todo</code>, <code>todo.readonly</code></li>
+<li><code>files</code>, <code>files.readonly</code></li>
+<li><code>sharepoint</code>, <code>sharepoint.readonly</code></li>
+<li><code>user.read</code></li>
+<li><code>all</code> or <code>*</code> to expand to all mapped scopes</li>
+</ul>
+<h3>Examples</h3>
+<pre class="code"><code>
+const msauth = require(&#x27;msauth@latest&#x27;);
+
+const res = await msauth.ensureAuthenticated({ scope: &#x27;files.readonly&#x27; });
+if (res.status === &#x27;ok&#x27;) {
+  console.log(&#x27;token ready&#x27;);
+} else if (res.status === &#x27;pending&#x27; &amp;&amp; msauth.shouldNotifyMsAuth(res.device)) {
+  console.log(&#x27;Complete sign-in:&#x27;, res.device.verification_uri, res.device.user_code);
+}
+</code></pre>
+      </div>
+      <div class="section">
+  <h2>Changelog</h2>
+  <h2>v1.0.1 - Semantic documentation markup update</h2>
+<p>Improves msauth documentation readability and SEO with semantic HTML for the README snapshot and changelog keywords.</p>
+<h3>Changed</h3>
+<ul>
+<li>Replaced the docs site README and changelog blocks with structured HTML content.</li>
+</ul>
+<h2>v1.0.1 - Documentation site content refresh</h2>
+<p>Updates the msauth documentation site with README content and refreshed release notes to improve Microsoft OAuth device flow discoverability.</p>
+<h3>Added</h3>
+<ul>
+<li>ReadMe content block on the msauth documentation site.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Changelog snapshot text on the documentation site for updated msauth metadata.</li>
+</ul>
+<h2>v1.0.1 - Msauth documentation site launch</h2>
+<p>Adds a lightweight msauth documentation site and updates release notes to improve discoverability for Microsoft OAuth device flow keywords.</p>
+<h3>Added</h3>
+<ul>
+<li>Static documentation site with a published changelog snapshot.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Refreshed release notes for msauth keywords and metadata.</li>
+</ul>
+<h2>v1.0.1 - Metadata maintenance update</h2>
+<p>Small maintenance release with version metadata updates for msauth, Microsoft OAuth, and scope mapping keywords.</p>
+<h3>Changed</h3>
+<ul>
+<li>Bumped package version metadata.</li>
+</ul>
+</div>
+    </main>
+  </body>
+</html>
