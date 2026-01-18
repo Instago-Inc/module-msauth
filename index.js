@@ -2,10 +2,10 @@
 // Microsoft OAuth using Device Code flow + Refresh with scope mapping.
 
 (function () {
-  const httpx = require('http@1.0.0');
-  const j = require('json@1.0.0');
-  const log = require('log@1.0.0').create('msauth');
-  const b64 = require('b64@1.0.0');
+  const httpx = require('http@latest');
+  const j = require('json@latest');
+  const log = require('log@latest').create('msauth');
+  const b64 = require('b64@latest');
   const AUTH_HOST = 'https://login.microsoftonline.com';
   const notifyOncePerRestart = {};
   const defaults = {
@@ -25,10 +25,15 @@
     'contacts.readonly': ['https://graph.microsoft.com/Contacts.Read'],
     'todo': ['https://graph.microsoft.com/Tasks.ReadWrite'],
     'todo.readonly': ['https://graph.microsoft.com/Tasks.Read'],
+    'planner': ['https://graph.microsoft.com/Tasks.ReadWrite', 'https://graph.microsoft.com/Group.ReadWrite.All', 'https://graph.microsoft.com/User.Read'],
+    'planner.readonly': ['https://graph.microsoft.com/Tasks.Read', 'https://graph.microsoft.com/Group.Read.All', 'https://graph.microsoft.com/User.Read'],
     'files': ['https://graph.microsoft.com/Files.ReadWrite.All'],
     'files.readonly': ['https://graph.microsoft.com/Files.Read.All'],
     'sharepoint': ['https://graph.microsoft.com/Sites.ReadWrite.All'],
     'sharepoint.readonly': ['https://graph.microsoft.com/Sites.Read.All'],
+    'teams': ['https://graph.microsoft.com/Chat.ReadWrite', 'https://graph.microsoft.com/OnlineMeetings.ReadWrite', 'https://graph.microsoft.com/User.Read'],
+    'teams.chat': ['https://graph.microsoft.com/Chat.ReadWrite', 'https://graph.microsoft.com/User.Read'],
+    'teams.meetings': ['https://graph.microsoft.com/OnlineMeetings.ReadWrite', 'https://graph.microsoft.com/User.Read'],
     'user.read': ['https://graph.microsoft.com/User.Read']
   };
 

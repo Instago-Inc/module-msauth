@@ -1,8 +1,8 @@
 # module/msauth - V8 module
 
-msauth provides a simple way to handle Microsoft sign-in flows so workflows can access Microsoft services without wiring every OAuth step by hand. It keeps the experience friendly by guiding users through device code sign-in and reusing saved tokens when possible.
+msauth helps workflows sign in to Microsoft services without needing to stitch together OAuth steps in every script. It guides users through device code sign-in, reuses cached tokens, and keeps the flow readable.
 
-Use it as the common entry point for Microsoft auth in this V8 environment. For more details about the platform, visit https://instago.ai.
+Use it as the standard auth entry point for this runtime. For more about the platform, visit https://instago.ai.
 
 ## Technical reference
 
@@ -35,7 +35,6 @@ if (res.status === 'ok') {
   const accessToken = res.tokens.access_token;
   // use accessToken in Graph calls
 } else if (res.status === 'pending') {
-  // show device instructions to the user
   const device = res.device || {};
   console.log('Visit', device.verification_uri, 'and enter', device.user_code);
 }
@@ -60,7 +59,7 @@ Required env:
 
 Optional env:
 - `msauth.clientSecret` - Client secret (needed for client credentials or refresh with secret).
-- `msauth.scope` - Space/comma separated scopes or scope aliases (e.g., `mail,todo`).
+- `msauth.scope` - Space/comma separated scopes or scope alias (e.g., `mail,todo`).
 - `msauth.mode` - Auth mode: `device` | `app` | `client`.
 - `msauth.debug` - Enable debug logging (`true`/`false`).
 
@@ -76,8 +75,10 @@ Scope aliases:
 - `calendar`, `calendar.readonly`
 - `contacts`, `contacts.readonly`
 - `todo`, `todo.readonly`
+- `planner`, `planner.readonly`
 - `files`, `files.readonly`
 - `sharepoint`, `sharepoint.readonly`
+- `teams` (chat + meetings), `teams.chat`, `teams.meetings`
 - `user.read`
 - `all` or `*` to expand to all mapped scopes
 
@@ -89,7 +90,7 @@ const msauth = require('msauth@latest');
 const res = await msauth.ensureAuthenticated({ scope: 'files.readonly' });
 if (res.status === 'ok') {
   console.log('token ready');
-} else if (res.status === 'pending' && msauth.shouldNotifyMsAuth(res.device)) {
+} else if (res.status === 'pending' && msauth.shouldNotifyMsAuth(res.device || {})) {
   console.log('Complete sign-in:', res.device.verification_uri, res.device.user_code);
 }
 ```
